@@ -1,0 +1,278 @@
+{% extends 'admin_dashboard.html' %}
+
+{% block page_title %}User Details{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="{% url 'user_list' %}">Users</a></li>
+    <li class="breadcrumb-item active">{{ user_obj.username }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <!-- User Profile Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user me-2"></i>User Profile
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                    <i class="fas fa-user fa-2x"></i>
+                </div>
+                <h5 class="mb-2">{{ user_obj.get_full_name|default:user_obj.username }}</h5>
+                <p class="text-muted mb-3">@{{ user_obj.username }}</p>
+                
+                <!-- Status Badges -->
+                <div class="mb-3">
+                    {% if user_obj.is_superuser %}
+                        <span class="badge bg-danger me-1">Superuser</span>
+                    {% endif %}
+                    {% if user_obj.is_admin %}
+                        <span class="badge bg-warning me-1">Admin</span>
+                    {% endif %}
+                    {% if user_obj.is_active %}
+                        <span class="badge bg-success me-1">Active</span>
+                    {% else %}
+                        <span class="badge bg-secondary me-1">Inactive</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2">
+                    <a href="{% url 'user_update' user_obj.pk %}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Edit User
+                    </a>
+                    <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Stats Card -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>User Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-primary mb-0">{{ user_predictions }}</h4>
+                            <small class="text-muted">Predictions</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success mb-0">{{ user_images }}</h4>
+                        <small class="text-muted">Images</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h4 class="text-info mb-0">{{ user_videos }}</h4>
+                            <small class="text-muted">Videos</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-warning mb-0">{{ avg_confidence|floatformat:1 }}%</h4>
+                        <small class="text-muted">Avg Confidence</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <!-- User Information -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>User Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Username</label>
+                            <p class="fw-bold">{{ user_obj.username }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Email</label>
+                            <p class="fw-bold">{{ user_obj.email|default:"-" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">First Name</label>
+                            <p class="fw-bold">{{ user_obj.first_name|default:"-" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Last Name</label>
+                            <p class="fw-bold">{{ user_obj.last_name|default:"-" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Date Joined</label>
+                            <p class="fw-bold">{{ user_obj.date_joined|date:"F d, Y \a\t g:i A" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Last Login</label>
+                            <p class="fw-bold">
+                                {% if user_obj.last_login %}
+                                    {{ user_obj.last_login|date:"F d, Y \a\t g:i A" }}
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feedback Statistics -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-thumbs-up me-2"></i>Feedback Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
+                                <i class="fas fa-thumbs-up"></i>
+                            </div>
+                            <h4 class="mb-0">{{ positive_feedback_count }}</h4>
+                            <small class="text-muted">Positive Feedback</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
+                                <i class="fas fa-thumbs-down"></i>
+                            </div>
+                            <h4 class="mb-0">{{ negative_feedback_count }}</h4>
+                            <small class="text-muted">Negative Feedback</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <h4 class="mb-0">
+                                {% if positive_feedback_count > 0 or negative_feedback_count > 0 %}
+                                    {{ positive_feedback_count|add:negative_feedback_count|floatformat:0 }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </h4>
+                            <small class="text-muted">Total Feedback</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Predictions -->
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-brain me-2"></i>Recent Predictions
+                </h5>
+                <a href="{% url 'prediction_list' %}?user={{ user_obj.username }}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_predictions %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Confidence</th>
+                                    <th>Feedback</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prediction in recent_predictions %}
+                                    <tr>
+                                        <td>{{ prediction.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ prediction.status|yesno:'success,warning,danger' }}">
+                                                {{ prediction.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if prediction.confidence_score %}
+                                                {{ prediction.confidence_score|floatformat:1 }}%
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if prediction.user_feedback == 'like' %}
+                                                <i class="fas fa-thumbs-up text-success"></i>
+                                            {% elif prediction.user_feedback == 'dislike' %}
+                                                <i class="fas fa-thumbs-down text-danger"></i>
+                                            {% else %}
+                                                <i class="fas fa-minus text-muted"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-brain fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">No predictions yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-history me-2"></i>Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_activity %}
+                    {% for activity in recent_activity %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-bold">{{ activity.get_activity_type_display }}</div>
+                                <div class="text-muted small">{{ activity.timestamp|timesince }} ago</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-history fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">No recent activity</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

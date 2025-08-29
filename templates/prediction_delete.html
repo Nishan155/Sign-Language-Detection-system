@@ -1,0 +1,29 @@
+{% extends 'admin_dashboard.html' %}
+
+{% block page_title %}Delete Prediction{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'prediction_list' %}">Predictions</a></li>
+<li class="breadcrumb-item active">Delete</li>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0 text-danger"><i class="fas fa-trash me-2"></i>Confirm Delete</h5>
+    </div>
+    <div class="card-body">
+        <p>Are you sure you want to delete the prediction with ID <strong>{{ prediction.prediction_id }}</strong>?</p>
+
+        <form method="post" action="">
+            {% csrf_token %}
+            <a href="{% url 'prediction_list' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash me-1"></i> Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

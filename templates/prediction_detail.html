@@ -1,0 +1,148 @@
+{% extends 'admin_dashboard.html' %}
+
+{% block page_title %}Prediction Details{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'prediction_list' %}">Predictions</a></li>
+<li class="breadcrumb-item active">Details</li>
+{% endblock %}
+
+{% block content %}
+<style>
+    pre {
+        font-family: var(--bs-font-monospace, monospace);
+        font-size: 0.95rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin-bottom: 0;
+    }
+
+    .section-heading {
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-body p {
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-brain me-2"></i>Prediction Details
+        </h5>
+        <a href="{% url 'prediction_list' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="section-heading">Basic Information</div>
+                <p><strong>ID:</strong> {{ prediction.prediction_id }}</p>
+                <p><strong>User:</strong> {{ prediction.user.username }}</p>
+                <p><strong>Email:</strong> {{ prediction.user.email|default:"-" }}</p>
+                <p><strong>Status:</strong>
+                    {% if prediction.status == 'completed' %}
+                        <span class="badge bg-success">Completed</span>
+                    {% elif prediction.status == 'processing' %}
+                        <span class="badge bg-warning">Processing</span>
+                    {% elif prediction.status == 'pending' %}
+                        <span class="badge bg-info">Pending</span>
+                    {% elif prediction.status == 'failed' %}
+                        <span class="badge bg-danger">Failed</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ prediction.status|title }}</span>
+                    {% endif %}
+                </p>
+                <p><strong>Confidence:</strong>
+                    {% if prediction.confidence_score %}
+                        {{ prediction.confidence_score|floatformat:1 }}%
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </p>
+                <p><strong>Created:</strong> {{ prediction.created_at|date:"M d, Y - H:i A" }}</p>
+                <p><strong>Processing Time:</strong>
+                    {% if prediction.processing_time %}
+                        {{ prediction.processing_time|floatformat:2 }}s
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                <div class="section-heading">Feedback</div>
+                <p><strong>User Feedback:</strong>
+                    {% if prediction.user_feedback == 'like' %}
+                        <i class="fas fa-thumbs-up text-success"></i> Positive
+                    {% elif prediction.user_feedback == 'dislike' %}
+                        <i class="fas fa-thumbs-down text-danger"></i> Negative
+                    {% else %}
+                        <span class="text-muted">No feedback</span>
+                    {% endif %}
+                </p>
+                <p><strong>Feedback Notes:</strong>
+                    {{ prediction.feedback_comment|default:"No notes" }}
+                </p>
+                <p><strong>Feedback Time:</strong>
+                    {{ prediction.feedback_timestamp|date:"M d, Y - H:i A"|default:"-" }}
+                </p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="mb-4">
+            <div class="section-heading">Prediction Result</div>
+            <div class="border rounded bg-light p-3">
+                {% if prediction.prediction %}
+                    <pre>{{ prediction.prediction|linebreaks }}</pre>
+                {% else %}
+                    <span class="text-muted">No result available</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+            <div class="section-heading">Raw Output</div>
+            <div class="border rounded bg-light p-3">
+                {% if prediction.raw_output %}
+                    <pre>{{ prediction.raw_output|linebreaks }}</pre>
+                {% else %}
+                    <span class="text-muted">No raw output available</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if prediction.prediction_image %}
+            <div class="mb-4">
+                <div class="section-heading">Prediction Image</div>
+                <div class="border rounded bg-light p-3 d-flex justify-content-center">
+                    <img src="{{ prediction.prediction_image.url }}" alt="Prediction Image" class="img-fluid" style="max-height: 400px; object-fit: contain;">
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="mt-4 d-flex gap-2">
+            <a href="{% url 'prediction_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+
+            <form method="post" action="{% url 'admin_prediction_delete' prediction.prediction_id %}" style="display:inline;"
+                  onsubmit="return confirm('Are you sure you want to delete this prediction?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

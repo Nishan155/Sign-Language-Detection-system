@@ -1,0 +1,426 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Account Dashboard - DeepGesture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .dashboard-container {
+            min-height: calc(100vh - 60px);
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 20px solid #764ba2;
+        }
+
+        .dashboard-header h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .dashboard-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .dashboard-body {
+            padding: 2.5rem 2rem 2rem;
+        }
+
+        .account-details {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .account-details p {
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .account-details p i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .btn-modern {
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border: 2px solid;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-logout:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            border-color: #c0392b;
+            color: white;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-toggle {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-toggle:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .btn-toggle.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .form-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section h5 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-floating > .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 1rem 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-floating > .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .form-floating > label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.9rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .floating-icon:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-icon:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+
+        .floating-icon:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+            
+            .dashboard-body {
+                padding: 2rem 1.5rem;
+            }
+            
+            .toggle-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-toggle {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navigation.html' %}
+
+    <div class="container dashboard-container">
+        <div class="row justify-content-center w-100">
+            <div class="col-lg-8 col-md-10">
+                <div class="dashboard-card">
+                    <div class="dashboard-header">
+                        <h2><i class="fas fa-user-circle me-2"></i>Account Dashboard</h2>
+                        <p>Manage your personal account settings and security</p>
+                    </div>
+
+                    <div class="dashboard-body">
+                        <!-- Account Info -->
+                        <div class="account-details">
+                            <p><i class="fas fa-user"></i><strong>Username:</strong> {{ request.user.username }}</p>
+                            <p><i class="fas fa-envelope"></i><strong>Email:</strong> {{ request.user.email }}</p>
+                            <div class="text-center mt-3">
+                                <a href="{% url 'logout' %}" class="btn btn-modern btn-logout">
+                                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Buttons -->
+                        <div class="toggle-buttons">
+                            <button class="btn btn-modern btn-toggle" onclick="toggleSection('usernameSection', this)">
+                                <i class="fas fa-user-edit me-1"></i>Change Username
+                            </button>
+                            <button class="btn btn-modern btn-toggle" onclick="toggleSection('passwordSection', this)">
+                                <i class="fas fa-lock me-1"></i>Change Password
+                            </button>
+                            <button class="btn btn-modern btn-toggle" onclick="toggleSection('emailSection', this)">
+                                <i class="fas fa-envelope me-1"></i>Change Email
+                            </button>
+                        </div>
+
+                        <!-- Change Username -->
+                        <div id="usernameSection" class="form-section">
+                            <h5><i class="fas fa-user-edit me-2"></i>Update Username</h5>
+                            <form method="POST" action="{% url 'change_username' %}">
+                                {% csrf_token %}
+                                <div class="form-floating">
+                                    <input type="text" name="username" id="newUsername" class="form-control"
+                                        placeholder="Enter new username" required>
+                                    <label for="newUsername"><i class="fas fa-at me-2"></i>New Username</label>
+                                </div>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-save me-1"></i>Update Username
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Change Password -->
+                        <div id="passwordSection" class="form-section">
+                            <h5><i class="fas fa-lock me-2"></i>Update Password</h5>
+                            <form method="POST" action="{% url 'change_password' %}">
+                                {% csrf_token %}
+                                <div class="form-floating">
+                                    <input type="password" name="old_password" id="oldPassword" class="form-control" required>
+                                    <label for="oldPassword"><i class="fas fa-key me-2"></i>Current Password</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="password" name="new_password1" id="newPassword1" class="form-control" required>
+                                    <label for="newPassword1"><i class="fas fa-lock me-2"></i>New Password</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="password" name="new_password2" id="newPassword2" class="form-control" required>
+                                    <label for="newPassword2"><i class="fas fa-lock me-2"></i>Confirm New Password</label>
+                                </div>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-shield-alt me-1"></i>Update Password
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Change Email -->
+                        <div id="emailSection" class="form-section">
+                            <h5><i class="fas fa-envelope me-2"></i>Update Email</h5>
+                            <form method="POST" action="{% url 'change_email' %}">
+                                {% csrf_token %}
+                                <div class="form-floating">
+                                    <input type="email" name="email" id="newEmail" class="form-control"
+                                        placeholder="Enter new email" required>
+                                    <label for="newEmail"><i class="fas fa-envelope me-2"></i>New Email Address</label>
+                                </div>
+                                <button type="submit" class="btn btn-submit">
+                                    <i class="fas fa-paper-plane me-1"></i>Update Email
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSection(sectionId, button) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.btn-toggle');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('active');
+                button.classList.add('active');
+            }
+        }
+
+        // Add interactive feedback for form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            
+            forms.forEach(form => {
+                const inputs = form.querySelectorAll('.form-control');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        if (this.checkValidity()) {
+                            this.classList.remove('is-invalid');
+                            this.classList.add('is-valid');
+                        } else {
+                            this.classList.remove('is-valid');
+                            this.classList.add('is-invalid');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
